@@ -123,7 +123,15 @@ oneshots = [
   Sounds.offbeat,
   Sounds.gtr_d,
   Sounds.gtr_e,
-  Sounds.gtr_f
+  Sounds.gtr_f,
+  Sounds.guitar1,
+  Sounds.guitar2,
+  Sounds.guitar3,
+  Sounds.shot1,
+  Sounds.shot2,
+  Sounds.shot3,
+  Sounds.metallic,
+  Sounds.banjyo1
 ];
 
 loops = [
@@ -143,11 +151,18 @@ drums_all = [
   Sounds.snare
 ];
 
+basses = [
+  Sounds.bass,
+  Sounds.bass1,
+  Sounds.bass2
+];
+
 drums_base = [
   Sounds.tom,
   Sounds.hihat_1,
   Sounds.steel_drum,
-  Sounds.snare
+  Sounds.snare,
+  Sounds.cowbell
 ];
 
 kicks = [
@@ -161,10 +176,10 @@ kicks = [
 
 const createSoundGrid = () => {
   let soundGrid = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 2; i++) {
     let temp = [];
-    for (let j = 0; j < 4; j++) {
-      temp.push(randomArray([...drums_base, ...oneshots]));
+    for (let j = 0; j < 2; j++) {
+      temp.push(randomArray([...basses, ...drums_base, ...oneshots]));
     }
     soundGrid.push(temp);
   }

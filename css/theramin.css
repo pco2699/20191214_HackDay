@@ -2,6 +2,14 @@ video {
   display: none;
 }
 
+div#message {
+  color: aliceblue;
+}
+
+div.pong {
+  text-align: center;
+}
+
 div.main {
   margin: 55px 90px 15px 90px;
   display: flex;

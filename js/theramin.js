@@ -2,6 +2,8 @@ const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 const video = document.getElementById("myvideo");
 const updateNote = document.getElementById("text");
+const messageNote = document.getElementById("message");
+const handtrackNote = document.getElementsByClassName("handtrack")[0];
 
 const logo = document.getElementById("js-dansepong-logo");
 
@@ -18,6 +20,7 @@ let model = null;
 let isVideo = false;
 let soundStart = false;
 let videoInterval = 100;
+let gainNode = null;
 
 const modelParams = {
   flipHorizontal: true,   // flip e.g for video
@@ -26,11 +29,19 @@ const modelParams = {
   scoreThreshold: 0.85,    // confidence threshold for predictions.
 };
 
+messageNote.addEventListener('click', () => {
+  handtrackNote.style.display = "block";
+});
+
 window.addEventListener('DOMContentLoaded', () => {
   (async () => {
     // Load the model.
     model = await handTrack.load(modelParams);
-    startVideo();
+    messageNote.innerText = 'Loading Complete!';
+    setTimeout(()=> {
+      messageNote.style.display = "none";
+      startVideo();
+    }, 1000);
   })();
 });
 
@@ -51,15 +62,20 @@ const readySound = async () => {
   audioContext = new AudioContext();
 };
 
-const startSound = async (y) => {
+const startSound = async (x, y) => {
   if (!soundStart && audioContext) {
+    gainNode = audioContext.createGain();
     oscillator = audioContext.createOscillator();
-    oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.01);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.1);
+    gainNode.gain.setTargetAtTime(calculateGain(x), audioContext.currentTime, 0.1);
     oscillator.connect(audioContext.destination);
     oscillator.start(audioContext.currentTime);
     soundStart = true;
   } else if (audioContext) {
-    oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.01);
+    gainNode.gain.setTargetAtTime(calculateGain(x), audioContext.currentTime, 0.1);
+    oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.1);
   } else {
     await readySound();
   }
@@ -92,7 +108,8 @@ const runDetection = async () => {
 
     let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
     let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
-    await startSound(midHeight);
+    console.log(midWidth);
+    await startSound(midWidth, midHeight);
 
     // ゲーム開始
     console.log(midHeight);
@@ -130,7 +147,9 @@ const calculateFrequency = (handYPosition) => {
 
 const calculateGain = (handXPosition) => {
   const minGain = 0, maxGain = 1;
-  return 1 - ((handXPosition / video.height) * maxGain) + minGain;
+  const gain = 1 - ((handXPosition / video.width) * maxGain) + minGain;
+  console.log(gain);
+  return gain;
 };
 
 logo.onclick = () => {
