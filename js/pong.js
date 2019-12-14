@@ -42,8 +42,8 @@ var Paddle = {
 		return {
 			width: 15,
 			height: 110,
-			x: side === 'left' ? 213 : this.canvas.width - 150,
-			y: (this.canvas.height / 2) - 35,
+			x: side === 'left' ? 238 : this.canvas.width - 150,
+			y: (this.canvas.height / 2) - 50,
 			score: 0,
 			moveX: DIRECTION.IDLE,
 			moveY: DIRECTION.IDLE,
@@ -60,7 +60,7 @@ var Game = {
 		this.context = this.canvas.getContext('2d');
 
 		this.canvas.width = 1400;
-		this.canvas.height = 1000;
+		this.canvas.height = 700;
 
 		// this.canvas.style.width = (this.canvas.width / 2) + 'px';
 		// this.canvas.style.height = (this.canvas.height / 2) + 'px';
@@ -125,14 +125,14 @@ var Game = {
   setPlayerW: function (w) {
     if (this.player) {
       console.log("Player W Updated");
-      this.player.width = w * 0.2;
+      this.player.width = w * 0.1;
     }
   },
 
   setPlayerH: function (h) {
     if (this.player) {
       console.log("Player H Updated");
-      this.player.height = h * 2 - 100;
+      this.player.height = h - 100;
     }
   },
 
@@ -185,9 +185,8 @@ var Game = {
     // 画像読み込み
     var img = new Image();
     img.src = "image/hand.svg";
-    console.log(img);
     img.onload = () => {
-      this.context.drawImage(img, 20, 225, 400, 573);  //400x300に縮小表示
+      this.context.drawImage(img, 20, 130, 450, 450);  //400x300に縮小表示
     }
 
 		// // Change the canvas font size and color
@@ -370,25 +369,6 @@ var Game = {
 
 		// Draw the Ball
 		if (Pong._turnDelayIsOver.call(this)) {
-      // // 円の中心座標: (100,100)
-      // // 半径: 50
-      // // 開始角度: 0度 (0 * Math.PI / 180)
-      // // 終了角度: 360度 (360 * Math.PI / 180)
-      // // 方向: true=反時計回りの円、false=時計回りの円
-      // beginPath();
-      // this.context.arc(
-      //   this.ball.x,
-      //   this.ball.y,
-      //   this.ball.width * 0.5,
-      //   0 * Math.PI / 180,
-      //   360 * Math.PI / 180,
-      //   false
-      // );
-      // this.context.fillStyle = "#FFFFFF";
-      // this.context.beginPath();
-      // this.context.fill();
-      // this.context.closePath();
-
       if (this.ball.moveX === DIRECTION.RIGHT) {
         this.context.fillStyle = '#FF40D7';
       }
@@ -399,12 +379,29 @@ var Game = {
         this.context.fillStyle = "rgba(" + [0, 0, 255, 0] + ")";
       }
 
-			this.context.fillRect(
+      // 円の中心座標: (100,100)
+      // 半径: 50
+      // 開始角度: 0度 (0 * Math.PI / 180)
+      // 終了角度: 360度 (360 * Math.PI / 180)
+      // 方向: true=反時計回りの円、false=時計回りの円
+      this.context.beginPath();
+      this.context.arc(
         this.ball.x,
         this.ball.y,
-        this.ball.width,
-        this.ball.height
+        this.ball.width * 0.5,
+        0 * Math.PI / 180,
+        360 * Math.PI / 180,
+        false
       );
+      this.context.fill();
+      this.context.closePath();
+
+			// this.context.fillRect(
+      //   this.ball.x,
+      //   this.ball.y,
+      //   this.ball.width,
+      //   this.ball.height
+      // );
 
       this.context.fillStyle = '#FFFFFF';
 		}
