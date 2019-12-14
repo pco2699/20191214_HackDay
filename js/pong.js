@@ -40,7 +40,6 @@ connectTrigger.addEventListener('click', () => {
     if (data.name == "update") {
       Pong.paddle.y = data.paddleY;
       if (!host) {
-        console.log(data.ballX);
         Pong.ball.x = 1400 - data.ballX;
         Pong.ball.y = data.ballY;
       }
