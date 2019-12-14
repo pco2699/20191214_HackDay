@@ -65,6 +65,11 @@ var Game = {
 		this.color = '#021D3C';
 		this.beatCount = 0;
 		this.bpm = 120;
+		this.soundArr = [];
+
+		for (let key in Sounds) {
+		  this.setPlaybackRate(Sounds[key]);
+    }
 
 		Pong.menu(); // レディ
 		Pong.listen(); // リッスン
@@ -183,6 +188,20 @@ var Game = {
 		);
 	},
 
+  playSoundGrid: function(soundGrid) {
+	  let rand = Math.floor( Math.random() * 2 );
+	  if (rand === 1){
+	    console.log("ballx: " + this.ball.x + "bally" + this.ball.y);
+	    let length = soundGrid.length;
+	    let x = Math.floor(this.ball.x / this.canvas.width * length);
+	    let y = Math.floor(this.ball.y / this.canvas.height * length);
+	    console.log("x: " + x + "y: " + y);
+	    let selectedGrid = soundGrid[x][y];
+	    console.log(selectedGrid);
+	    selectedGrid.play();
+    }
+  },
+
   setPlaybackRate: function(audio) {
     if (audio.bpm === -1){
       return
@@ -192,7 +211,14 @@ var Game = {
 
   playSong: function() {
     if (this.checkBpm(4)) {
-      kick.play();
+      Sounds.kick.play();
+    }
+    if (this.checkBpm(8)) {
+      this.playSoundGrid(soundGrid);
+      this.soundArr.forEach((s)=>{
+        s.play();
+      });
+      this.soundArr = [];
     }
 
     this.beatCount++;
@@ -211,10 +237,20 @@ var Game = {
 			// ボールのバウンド制御
 			// if (this.ball.x <= 0) Pong._resetTurn.call(this, this.paddle, this.player);
 			// if (this.ball.x >= this.canvas.width - this.ball.width) Pong._resetTurn.call(this, this.player, this.paddle);
-			if (this.ball.x <= 0) this.ball.moveX = DIRECTION.RIGHT;
-			if (this.ball.x >= this.canvas.width - this.ball.width) this.ball.moveX = DIRECTION.LEFT;
-			if (this.ball.y <= 0) this.ball.moveY = DIRECTION.DOWN;
-			if (this.ball.y >= this.canvas.height - this.ball.height) this.ball.moveY = DIRECTION.UP;
+			if (this.ball.x <= 0) {
+			  this.ball.moveX = DIRECTION.RIGHT;
+      }
+			if (this.ball.x >= this.canvas.width - this.ball.width) {
+			  this.ball.moveX = DIRECTION.LEFT;
+      }
+			if (this.ball.y <= 0) {
+			  this.ball.moveY = DIRECTION.DOWN;
+        this.soundArr.push(Sounds.tom);
+      }
+			if (this.ball.y >= this.canvas.height - this.ball.height) {
+			  this.ball.moveY = DIRECTION.UP;
+        this.soundArr.push(Sounds.ride);
+      }
 
 			// プレイヤーを動かす（キーボード入力に反応）
 			if (this.player.moveY === DIRECTION.UP) {
@@ -270,7 +306,7 @@ var Game = {
 					this.ball.x = (this.player.x + this.ball.width);
 					this.ball.moveX = DIRECTION.RIGHT;
 
-					beep1.play();
+					this.soundArr.push(selectSounds(voices));
 				}
 			}
 
@@ -280,7 +316,8 @@ var Game = {
 					this.ball.x = (this.paddle.x - this.ball.width);
 					this.ball.moveX = DIRECTION.LEFT;
 
-					beep1.play();
+
+          this.soundArr.push(selectSounds(drums_all));
 				}
 			}
 		}
