@@ -215,6 +215,9 @@ var Game = {
 	    let x = Math.floor(this.ball.x / this.canvas.width * length);
 	    let y = Math.floor(this.ball.y / this.canvas.height * length);
 	    console.log("x: " + x + "y: " + y);
+	    if (x < 0 || y < 0){
+	      return
+      }
 	    let selectedGrid = soundGrid[x][y];
 	    console.log(selectedGrid);
 	    selectedGrid.play();
@@ -225,7 +228,7 @@ var Game = {
     if (audio.bpm === -1){
       return
     }
-    audio.setRate(this.bpm/audio.bpm)
+    audio.setRate(this.bpm/audio.bpm);
   },
 
   playSong: function() {
