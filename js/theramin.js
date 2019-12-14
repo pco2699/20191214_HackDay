@@ -82,7 +82,7 @@ const startSound = async (x, y) => {
 };
 
 const stopSound = () => {
-  if (audioContext) {
+  if (audioContext && oscillator) {
     oscillator.stop(audioContext.currentTime);
     oscillator.disconnect();
     soundStart = false;
