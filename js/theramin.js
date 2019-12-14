@@ -15,9 +15,6 @@ let isVideo = false;
 let soundStart = false;
 let videoInterval = 1;
 
-// sounds
-let kick = null;
-
 const modelParams = {
   flipHorizontal: true,   // flip e.g for video
   maxNumBoxes: 1,        // maximum number of boxes to detect
@@ -43,7 +40,6 @@ const startVideo = async () => {
 };
 
 const readySound = async () => {
-  kick = await loadSound("sound/SU_01_Kick.wav", audioContext);
   audioContext = new AudioContext();
 };
 
