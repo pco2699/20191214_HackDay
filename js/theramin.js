@@ -14,13 +14,13 @@ let oscillator = null;
 let model = null;
 let isVideo = false;
 let soundStart = false;
-let videoInterval = 100;
+let videoInterval = 1;
 
 const modelParams = {
   flipHorizontal: true,   // flip e.g for video
   maxNumBoxes: 1,        // maximum number of boxes to detect
   iouThreshold: 0.5,      // ioU threshold for non-max suppression
-  scoreThreshold: 0.6,    // confidence threshold for predictions.
+  scoreThreshold: 0.9,    // confidence threshold for predictions.
 };
 
 (async () => {
@@ -47,7 +47,6 @@ const readySound = () => {
 const startSound = (y) => {
   if (!soundStart && audioContext) {
     oscillator = audioContext.createOscillator();
-    console.log(calculateFrequency(y));
     oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.01);
     oscillator.connect(audioContext.destination);
     oscillator.start(audioContext.currentTime);
@@ -99,7 +98,7 @@ const runDetection = async () => {
 
 const calculateFrequency = (handYPosition) => {
   const minFrequency = 20, maxFrequency = 2000;
-  return Math.floor((handYPosition / video.height) * maxFrequency + minFrequency);
+  return video.height - Math.floor((handYPosition / video.height) * maxFrequency + minFrequency);
 };
 
 const calculateGain = (handXPosition) => {
