@@ -62,8 +62,8 @@ var Game = {
 		this.canvas.style.width = (this.canvas.width / 2) + 'px';
 		this.canvas.style.height = (this.canvas.height / 2) + 'px';
 
-		this.player = Paddle.new.call(this, 'left');
-		this.paddle = Paddle.new.call(this, 'right');
+		this.player = Paddle.new.call(this, 'left'); // プレイヤーパドルの初期化
+		this.paddle = Paddle.new.call(this, 'right'); // AIパドルの初期化
 		this.ball = Ball.new.call(this);
 
 		this.paddle.speed = 8;
@@ -72,9 +72,10 @@ var Game = {
 		this.timer = this.round = 0;
 		this.color = '#2c3e50';
 
-		Pong.menu();
-		Pong.listen();
+		Pong.menu(); // レディ
+		Pong.listen(); // リッスン
 	},
+
 
   setPlayerY: function (y) {
     if (this.player) {
@@ -88,7 +89,7 @@ var Game = {
     console.log("convertedHeight: " + convertedHeight);
     return convertedHeight;
   },
-
+  // ゲーム終了時
 	endGameMenu: function (text) {
 		// Change the canvas font size and color
 		Pong.context.font = '50px Courier New';
@@ -117,6 +118,7 @@ var Game = {
 		}, 3000);
 	},
 
+  // スタート時
 	menu: function () {
 		// Draw all the Pong objects in their current state
 		Pong.draw();
@@ -143,29 +145,32 @@ var Game = {
 		);
 	},
 
-	// Update all objects (move the player, paddle, ball, increment the score, etc.)
+	// オブジェクトのアップデート (プレイヤー, パドル, ボールの移動, スコアの加点など)
 	update: function () {
 		if (!this.over) {
-			// If the ball collides with the bound limits - correct the x and y coords.
+			// ボールのバウンド制御
 			if (this.ball.x <= 0) Pong._resetTurn.call(this, this.paddle, this.player);
 			if (this.ball.x >= this.canvas.width - this.ball.width) Pong._resetTurn.call(this, this.player, this.paddle);
 			if (this.ball.y <= 0) this.ball.moveY = DIRECTION.DOWN;
 			if (this.ball.y >= this.canvas.height - this.ball.height) this.ball.moveY = DIRECTION.UP;
 
-			// Move player if they player.move value was updated by a keyboard event
-			if (this.player.move === DIRECTION.UP) this.player.y -= this.player.speed;
-			else if (this.player.move === DIRECTION.DOWN) this.player.y += this.player.speed;
+			// プレイヤーを動かす（キーボード入力に反応）
+			if (this.player.move === DIRECTION.UP) {
+        this.player.y -= this.player.speed;
+      }
+			else if (this.player.move === DIRECTION.DOWN) {
+        this.player.y += this.player.speed;
+      }
 
-			// On new serve (start of each turn) move the ball to the correct side
-			// and randomize the direction to add some challenge.
-			if (Pong._turnDelayIsOver.call(this) && this.turn) {
-				this.ball.moveX = this.turn === this.player ? DIRECTION.LEFT : DIRECTION.RIGHT;
-				this.ball.moveY = [DIRECTION.UP, DIRECTION.DOWN][Math.round(Math.random())];
-				this.ball.y = Math.floor(Math.random() * this.canvas.height - 200) + 200;
-				this.turn = null;
+      // ボールの再投下
+			if (Pong._turnDelayIsOver.call(this) && this.turn && host) {
+				this.ball.moveX = this.turn === this.player ? DIRECTION.LEFT : DIRECTION.RIGHT; // 負けたほう側へ投下
+				this.ball.moveY = [DIRECTION.UP, DIRECTION.DOWN][Math.round(Math.random())]; // 上下ランダム
+				this.ball.y = Math.floor(Math.random() * this.canvas.height - 200) + 200; // yはランダム
+        this.turn = null;
 			}
 
-			// If the player collides with the bound limits, update the x and y coords.
+      // プレイヤーが画面外へ行かないように制御
 			if (this.player.y <= 0) this.player.y = 0;
 			else if (this.player.y >= (this.canvas.height - this.player.height)) this.player.y = (this.canvas.height - this.player.height);
 
@@ -185,11 +190,11 @@ var Game = {
 				else this.paddle.y += this.paddle.speed / 4;
 			}
 
-			// Handle paddle (AI) wall collision
+			// バドル (AI) が画面外へ行かないように制御
 			if (this.paddle.y >= this.canvas.height - this.paddle.height) this.paddle.y = this.canvas.height - this.paddle.height;
 			else if (this.paddle.y <= 0) this.paddle.y = 0;
 
-			// Handle Player-Ball collisions
+			// プレイヤーとボールの衝突制御
 			if (this.ball.x - this.ball.width <= this.player.x && this.ball.x >= this.player.x - this.player.width) {
 				if (this.ball.y <= this.player.y + this.player.height && this.ball.y + this.ball.height >= this.player.y) {
 					this.ball.x = (this.player.x + this.ball.width);
@@ -199,7 +204,7 @@ var Game = {
 				}
 			}
 
-			// Handle paddle-ball collision
+			// パドル（AI）とボールとの衝突制御
 			if (this.ball.x - this.ball.width <= this.paddle.x && this.ball.x >= this.paddle.x - this.paddle.width) {
 				if (this.ball.y <= this.paddle.y + this.paddle.height && this.ball.y + this.ball.height >= this.paddle.y) {
 					this.ball.x = (this.paddle.x - this.ball.width);
@@ -211,7 +216,7 @@ var Game = {
 		}
 
 		// Handle the end of round transition
-		// Check to see if the player won the round.
+    // プレイヤーが勝った場合
 		if (this.player.score === rounds[this.round]) {
 			// Check to see if there are any more rounds/levels left and display the victory screen if
 			// there are not.
@@ -230,14 +235,14 @@ var Game = {
 				beep3.play();
 			}
 		}
-		// Check to see if the paddle/AI has won the round.
+    // パドル（AI）が勝った場合
 		else if (this.paddle.score === rounds[this.round]) {
 			this.over = true;
 			setTimeout(function () { Pong.endGameMenu('Game Over!'); }, 1000);
 		}
 	},
 
-	// Draw the objects to the canvas element
+	// 描画
 	draw: function () {
 		// Clear the Canvas
 		this.context.clearRect(
@@ -335,6 +340,7 @@ var Game = {
 		);
 	},
 
+  // アップデートのループ
 	loop: function () {
 		Pong.update();
 		Pong.draw();
@@ -343,23 +349,30 @@ var Game = {
 		if (!Pong.over) requestAnimationFrame(Pong.loop);
 	},
 
+  // リッスン
 	listen: function () {
 		document.addEventListener('keydown', function (key) {
-			// Handle the 'Press any key to begin' function and start the game.
+      // ゲーム開始
 			if (Pong.running === false) {
 				Pong.running = true;
 				window.requestAnimationFrame(Pong.loop);
 			}
 
-			// Handle up arrow and w key events
-			if (key.keyCode === 38 || key.keyCode === 87) Pong.player.move = DIRECTION.UP;
+			// 上矢印 or w キーでプレイヤーを上移動
+			if (key.keyCode === 38 || key.keyCode === 87) {
+        Pong.player.move = DIRECTION.UP;
+      }
 
-			// Handle down arrow and s key events
-			if (key.keyCode === 40 || key.keyCode === 83) Pong.player.move = DIRECTION.DOWN;
+			// 下矢印 or s キーでプレイヤーを下移動
+			if (key.keyCode === 40 || key.keyCode === 83) {
+        Pong.player.move = DIRECTION.DOWN;
+      }
 		});
 
-		// Stop the player from moving when there are no keys being pressed.
-		document.addEventListener('keyup', function (key) { Pong.player.move = DIRECTION.IDLE; });
+		// キーを押してなかったらプレイヤーの動きを停止
+		document.addEventListener('keyup', function (key) {
+      Pong.player.move = DIRECTION.IDLE;
+    });
 	},
 
 	// Reset the ball location, the player turns and set a delay before the next round begins.
