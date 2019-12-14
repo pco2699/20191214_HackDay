@@ -17,20 +17,23 @@ let oscillator = null;
 let model = null;
 let isVideo = false;
 let soundStart = false;
-let videoInterval = 1;
+let videoInterval = 100;
 
 const modelParams = {
   flipHorizontal: true,   // flip e.g for video
   maxNumBoxes: 1,        // maximum number of boxes to detect
   iouThreshold: 0.5,      // ioU threshold for non-max suppression
-  scoreThreshold: 0.9,    // confidence threshold for predictions.
+  scoreThreshold: 0.85,    // confidence threshold for predictions.
 };
 
-(async () => {
-  // Load the model.
-  model = await handTrack.load(modelParams);
-  startVideo();
-})();
+window.addEventListener('DOMContentLoaded', () => {
+  (async () => {
+    // Load the model.
+    model = await handTrack.load(modelParams);
+    startVideo();
+  })();
+});
+
 
 const startVideo = async () => {
   const status = await handTrack.startVideo(video);
@@ -48,7 +51,7 @@ const readySound = async () => {
   audioContext = new AudioContext();
 };
 
-const startSound = (y) => {
+const startSound = async (y) => {
   if (!soundStart && audioContext) {
     oscillator = audioContext.createOscillator();
     oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.01);
@@ -57,6 +60,8 @@ const startSound = (y) => {
     soundStart = true;
   } else if (audioContext) {
     oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.01);
+  } else {
+    await readySound();
   }
 };
 
@@ -87,7 +92,7 @@ const runDetection = async () => {
 
     let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
     let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
-    startSound(midHeight);
+    await startSound(midHeight);
 
     // ゲーム開始
     console.log(midHeight);
@@ -108,6 +113,8 @@ const runDetection = async () => {
     // console.log("Pos: " + pos);
     // posNote.innerText = pos;
     // updatePaddleControl(gamex);
+  } else if (predictions.length === 0) {
+    stopSound();
   }
   if (isVideo) {
     setTimeout(() => {
@@ -117,8 +124,8 @@ const runDetection = async () => {
 };
 
 const calculateFrequency = (handYPosition) => {
-  const minFrequency = 20, maxFrequency = 2000;
-  return video.height - Math.floor((handYPosition / video.height) * maxFrequency + minFrequency);
+  const freqArray = [195.998, 233.082, 261.626, 293.665, 349.228, 391.995, 466.164, 523.251, 587.330, 698.456];
+  return freqArray[Math.floor((handYPosition / video.height) * freqArray.length)];
 };
 
 const calculateGain = (handXPosition) => {

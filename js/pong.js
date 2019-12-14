@@ -71,6 +71,7 @@ var Game = {
 		this.beatCount = 0;
 		this.bpm = 120;
 		this.soundArr = [];
+		this.kick = selectSounds(kicks);
 
 		for (let key in Sounds) {
 		  this.setPlaybackRate(Sounds[key]);
@@ -224,7 +225,8 @@ var Game = {
 	    if (x < 0 || y < 0){
 	      return
       }
-	    let selectedGrid = soundGrid[x][y];
+      let selectedGrid = soundGrid[x][y];
+
 	    console.log(selectedGrid);
 	    selectedGrid.play();
     }
@@ -239,7 +241,7 @@ var Game = {
 
   playSong: function() {
     if (this.checkBpm(4)) {
-      Sounds.kick.play();
+      Sounds.kick2.play();
     }
     if (this.checkBpm(8)) {
       this.playSoundGrid(soundGrid);
@@ -334,7 +336,7 @@ var Game = {
 					this.ball.x = (this.player.x + this.ball.width);
 					this.ball.moveX = DIRECTION.RIGHT;
 
-					this.soundArr.push(selectSounds(voices));
+					selectSounds(voices).play();
 				}
 			}
 
@@ -473,7 +475,7 @@ var Game = {
 		this.context.lineWidth = 3;
 		this.context.strokeStyle = '#14C9FF';
     this.context.stroke();
-    this.context.setLineDash([])
+    this.context.setLineDash([]);
 		this.context.closePath();
 
 		// Set the default canvas font and align it to the center

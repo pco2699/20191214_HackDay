@@ -27,10 +27,16 @@ beep3 = new Audio(
 );
 
 const Sounds = {
-  beat124: new SoundWrapper('beat124.wav'),
+  banjyo1: new SoundWrapper('banjyo1.wav'),
+  bass1: new SoundWrapper('bass1.wav'),
+  bass2: new SoundWrapper('bass2.wav'),
+  bass: new SoundWrapper('bass.wav'),
+  beat124: new SoundWrapper('beat124.wav', 124),
   beatk: new SoundWrapper('beatk.wav'),
   cantyou: new SoundWrapper('cantyou.wav'),
+  cello1: new SoundWrapper('cello1.wav'),
   clap: new SoundWrapper('clap.wav'),
+  cowbell: new SoundWrapper('cowbell.wav'),
   cymbals: new SoundWrapper('cymbals.wav'),
   fill122: new SoundWrapper('fill122.wav', 122),
   fill150_2: new SoundWrapper('fill150_2.wav', 150),
@@ -43,12 +49,20 @@ const Sounds = {
   gtr_d: new SoundWrapper('gtr_d.wav'),
   gtr_e: new SoundWrapper('gtr_e.wav'),
   gtr_f: new SoundWrapper('gtr_f.wav'),
+  guitar1: new SoundWrapper('guitar1.wav'),
+  guitar2: new SoundWrapper('guitar2.wav'),
+  guitar3: new SoundWrapper('guitar3.wav'),
   hey: new SoundWrapper('hey.wav'),
   hihat_1: new SoundWrapper('hihat_1.wav'),
   hihat_loop120: new SoundWrapper('hihat_loop120.wav', 120),
+  kick2: new SoundWrapper('kick2.wav'),
+  kick3: new SoundWrapper('kick3.wav'),
+  kick4: new SoundWrapper('kick4.wav'),
+  kick5: new SoundWrapper('kick5.wav'),
   kick: new SoundWrapper('kick.wav'),
   loop8: new SoundWrapper('loop8.wav'),
-  loopA120: new SoundWrapper('loopA120.wav', 120),
+  loopA120: new SoundWrapper('loopA120.wav'),
+  metallic: new SoundWrapper('metallic.wav'),
   offbeat: new SoundWrapper('offbeat.wav'),
   ok: new SoundWrapper('ok.wav'),
   pad_loop_108: new SoundWrapper('pad_loop_108.wav', 108),
@@ -56,16 +70,22 @@ const Sounds = {
   promises: new SoundWrapper('promises.wav'),
   ride: new SoundWrapper('ride.wav'),
   saxophone_124: new SoundWrapper('saxophone_124.wav', 124),
+  shot1: new SoundWrapper('shot1.wav'),
+  shot2: new SoundWrapper('shot2.wav'),
+  shot3: new SoundWrapper('shot3.wav'),
   snare: new SoundWrapper('snare.wav'),
   steel_drum: new SoundWrapper('steel_drum.wav'),
+  strings1: new SoundWrapper('strings1.wav'),
+  strings2: new SoundWrapper('strings2.wav'),
   synthloop120: new SoundWrapper('synthloop120.wav', 120),
   talkloop110: new SoundWrapper('talkloop110.wav', 110),
   thumb_p1: new SoundWrapper('thumb_p1.wav'),
-  tom115: new SoundWrapper('tom115.wav'),
+  tom115: new SoundWrapper('tom115.wav', 115),
   tom: new SoundWrapper('tom.wav'),
   trapit: new SoundWrapper('trapit.wav'),
+  violin: new SoundWrapper('violin.wav'),
   yeah2: new SoundWrapper('yeah2.wav'),
-  yeah: new SoundWrapper('yeah.wav')
+  yeah: new SoundWrapper('yeah.wav'),
 };
 
 const randomProperty = (obj) => {
@@ -128,6 +148,14 @@ drums_base = [
   Sounds.hihat_1,
   Sounds.steel_drum,
   Sounds.snare
+];
+
+kicks = [
+  Sounds.kick,
+  Sounds.kick2,
+  Sounds.kick3,
+  Sounds.kick4,
+  Sounds.kick5,
 ];
 
 
