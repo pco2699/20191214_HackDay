@@ -29,6 +29,7 @@ const modelParams = {
 (async () => {
   // Load the model.
   model = await handTrack.load(modelParams);
+  startVideo();
 })();
 
 const startVideo = async () => {
@@ -129,7 +130,3 @@ logo.onclick = () => {
   Pong = Object.assign({}, Game);
   Pong.initialize();
 };
-
-document.addEventListener("DOMContentLoaded", event => { 
-  startVideo();
-});
