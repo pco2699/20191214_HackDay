@@ -122,14 +122,16 @@ var Game = {
   setPlayerW: function (w) {
     if (this.player) {
       console.log("Player W Updated");
-      this.player.width = w * 0.1;
+      let width = w * 0.1;
+      this.player.width = width > 15 ? width : 15;
     }
   },
 
   setPlayerH: function (h) {
     if (this.player) {
       console.log("Player H Updated");
-      this.player.height = h - 100;
+      let height = h - 100;
+      this.player.height = height > 110 ? height : 110;
     }
   },
 
@@ -261,17 +263,17 @@ var Game = {
 			// if (this.ball.x <= 0) Pong._resetTurn.call(this, this.paddle, this.player);
 			// if (this.ball.x >= this.canvas.width - this.ball.width) Pong._resetTurn.call(this, this.player, this.paddle);
 			if (this.ball.x <= 0) {
-			  this.ball.moveX = DIRECTION.RIGHT;
+        this.ball.moveX = DIRECTION.RIGHT;
       }
 			if (this.ball.x >= this.canvas.width - this.ball.width) {
-			  this.ball.moveX = DIRECTION.LEFT;
+        this.ball.moveX = DIRECTION.LEFT;
       }
 			if (this.ball.y <= 0) {
-			  this.ball.moveY = DIRECTION.DOWN;
+        this.ball.moveY = DIRECTION.DOWN;
         this.soundArr.push(Sounds.tom);
       }
 			if (this.ball.y >= this.canvas.height - this.ball.height) {
-			  this.ball.moveY = DIRECTION.UP;
+        this.ball.moveY = DIRECTION.UP;
         this.soundArr.push(Sounds.ride);
       }
 
@@ -522,12 +524,6 @@ var Game = {
   // リッスン
 	listen: function () {
 		document.addEventListener('keydown', function (key) {
-      // ゲーム開始
-			if (Pong.running === false) {
-				Pong.running = true;
-				window.requestAnimationFrame(Pong.loop);
-			}
-
 			// 上矢印 or w キーでプレイヤーを上移動
 			if (key.keyCode === 38 || key.keyCode === 87) {
         Pong.player.moveY = DIRECTION.UP;
