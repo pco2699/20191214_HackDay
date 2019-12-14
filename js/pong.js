@@ -181,10 +181,14 @@ var Game = {
 		Pong.draw();
 
     // 画像読み込み
-    var img = new Image();
+    let img = new Image();
     img.src = "image/hand.svg";
+    let scale = 450;
+    const setImage = () => {
+      this.context.drawImage(img, 20, 130, scale, scale);  //400x300に縮小表示
+    }
     img.onload = () => {
-      this.context.drawImage(img, 20, 130, 450, 450);  //400x300に縮小表示
+      setImage();
     }
 
 		// // Change the canvas font size and color
