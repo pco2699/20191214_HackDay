@@ -14,8 +14,8 @@ var colors = ['#1abc9c', '#2ecc71', '#3498db', '#e74c3c', '#9b59b6'];
 var Ball = {
 	new: function (incrementedSpeed) {
 		return {
-			width: 18,
-			height: 18,
+			width: 40,
+			height: 40,
 			x: (this.canvas.width / 2) - 9,
 			y: (this.canvas.height / 2) - 9,
 			moveX: DIRECTION.IDLE,
@@ -29,9 +29,9 @@ var Ball = {
 var Paddle = {
 	new: function (side) {
 		return {
-			width: 18,
-			height: 70,
-			x: side === 'left' ? 150 : this.canvas.width - 150,
+			width: 15,
+			height: 110,
+			x: side === 'left' ? 213 : this.canvas.width - 150,
 			y: (this.canvas.height / 2) - 35,
 			score: 0,
 			moveX: DIRECTION.IDLE,
@@ -51,8 +51,13 @@ var Game = {
 		this.canvas.width = 1400;
 		this.canvas.height = 1000;
 
-		this.canvas.style.width = (this.canvas.width / 2) + 'px';
-		this.canvas.style.height = (this.canvas.height / 2) + 'px';
+		// this.canvas.style.width = (this.canvas.width / 2) + 'px';
+		// this.canvas.style.height = (this.canvas.height / 2) + 'px';
+		// this.canvas.style.width = this.canvas.width + 'px';
+		// this.canvas.style.height = this.canvas.height + 'px';
+		this.canvas.style.width = '1100px';
+		this.canvas.style.height = '550px';
+
 
 		this.player = Paddle.new.call(this, 'left'); // プレイヤーパドルの初期化
 		this.paddle = Paddle.new.call(this, 'right'); // AIパドルの初期化
@@ -62,7 +67,7 @@ var Game = {
 		this.running = this.over = false;
 		this.turn = this.paddle;
 		this.timer = this.round = 0;
-		this.color = '#021D3C';
+		this.color = '#19083B';
 		this.beatCount = 0;
 		this.bpm = 120;
 		this.soundArr = [];
@@ -78,15 +83,15 @@ var Game = {
   setPlayerY: function (y) {
     if (this.player) {
       // const baseHeight = 500;
-      const baseHeight = this.player.y;
+      const playerY = this.player.y;
       console.log("Player Y Updated");
-      if (baseHeight < y - 10) {
+      if (playerY + 210 < y) {
         this.player.moveY = DIRECTION.DOWN;
-        this.player.speedY = (y - baseHeight) / 20;
+        this.player.speedY = (y - (playerY+210)) / 20;
       }
-      else if (530 > y + 10) {
+      else if (playerY + 190 > y) {
         this.player.moveY = DIRECTION.UP;
-        this.player.speedY = (baseHeight - y) / 20;
+        this.player.speedY = ((playerY+190) - y) / 20;
       }
       else {
         this.player.moveY = DIRECTION.IDLE;
@@ -113,10 +118,17 @@ var Game = {
     }
   },
 
+  setPlayerW: function (w) {
+    if (this.player) {
+      console.log("Player W Updated");
+      this.player.width = w * 0.2;
+    }
+  },
+
   setPlayerH: function (h) {
     if (this.player) {
       console.log("Player H Updated");
-      this.player.height = h * 1.5 - 100;
+      this.player.height = h * 2 - 100;
     }
   },
 
@@ -127,7 +139,7 @@ var Game = {
   },
 
   convertRangeY: (curPos, height) => {
-    let convertedHeight = curPos * height / (this.canvas.height * 0.3);
+    let convertedHeight = curPos * height / (this.canvas.height * 0.5);
     console.log("convertedHeight: " + convertedHeight);
     return convertedHeight;
   },
@@ -166,26 +178,34 @@ var Game = {
 		// Draw all the Pong objects in their current state
 		Pong.draw();
 
-		// Change the canvas font size and color
-		this.context.font = '50px Courier New';
-		this.context.fillStyle = this.color;
+    // 画像読み込み
+    var img = new Image();
+    img.src = "image/hand.svg";
+    console.log(img);
+    img.onload = () => {
+      this.context.drawImage(img, 20, 225, 400, 573);  //400x300に縮小表示
+    }
+
+		// // Change the canvas font size and color
+		// this.context.font = '50px Courier New';
+		// this.context.fillStyle = this.color;
 
 		// Draw the rectangle behind the 'Press any key to begin' text.
-		this.context.fillRect(
-			this.canvas.width / 2 - 350,
-			this.canvas.height / 2 - 48,
-			700,
-			100
-		);
+		// this.context.fillRect(
+		// 	this.canvas.width / 2 - 350,
+		// 	this.canvas.height / 2 - 48,
+		// 	700,
+		// 	100
+		// );
 
 		// Change the canvas color;
 		this.context.fillStyle = '#ffffff';
 
-		// Draw the 'press any key to begin' text
-		this.context.fillText('Press any key to begin',
-			this.canvas.width / 2,
-			this.canvas.height / 2 + 15
-		);
+		// // Draw the 'press any key to begin' text
+		// this.context.fillText('Press any key to begin',
+		// 	this.canvas.width / 2,
+		// 	this.canvas.height / 2 + 15
+		// );
 	},
 
   playSoundGrid: function(soundGrid) {
@@ -370,14 +390,14 @@ var Game = {
 			this.canvas.height
 		);
 
-    // this.context.strokeStyle = '#14C9FF';
-		// this.context.lineWidth = 10;
-		// this.context.beginPath();
-    // this.context.strokeRect(80, 80, this.canvas.width-160, this.canvas.height-160);
-		// this.context.closePath();
+    this.context.strokeStyle = '#00E8E2';
+		this.context.lineWidth = 10;
+		this.context.beginPath();
+    this.context.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+		this.context.closePath();
 
 		// Set the fill style to white (For the paddles and the ball)
-		this.context.fillStyle = '#F526ED';
+		this.context.fillStyle = '#FF40D7';
 
 		// Draw the Player
 		this.context.fillRect(
@@ -388,7 +408,7 @@ var Game = {
 		);
 
 		// Set the fill style to white (For the paddles and the ball)
-		this.context.fillStyle = '#FFFFFF';
+		this.context.fillStyle = '#637A95';
 
 		// Draw the Paddle
 		this.context.fillRect(
@@ -405,6 +425,7 @@ var Game = {
       // // 開始角度: 0度 (0 * Math.PI / 180)
       // // 終了角度: 360度 (360 * Math.PI / 180)
       // // 方向: true=反時計回りの円、false=時計回りの円
+      // beginPath();
       // this.context.arc(
       //   this.ball.x,
       //   this.ball.y,
@@ -413,14 +434,19 @@ var Game = {
       //   360 * Math.PI / 180,
       //   false
       // );
-      // // this.context.fillStyle = "#FFFFFF";
-      // // this.context.fill();
-      // this.context.stroke();
+      // this.context.fillStyle = "#FFFFFF";
+      // this.context.beginPath();
+      // this.context.fill();
+      // this.context.closePath();
+
       if (this.ball.moveX === DIRECTION.RIGHT) {
-        this.context.fillStyle = '#F526ED';
+        this.context.fillStyle = '#FF40D7';
       }
       else if (this.ball.moveX === DIRECTION.LEFT) {
         this.context.fillStyle = '#FFFFFF';
+      }
+      else {
+        this.context.fillStyle = "rgba(" + [0, 0, 255, 0] + ")";
       }
 
 			this.context.fillRect(
@@ -436,8 +462,8 @@ var Game = {
 		// Draw the net (Line in the middle)
 		this.context.beginPath();
 		this.context.setLineDash([7, 15]);
-		this.context.moveTo((this.canvas.width / 2), this.canvas.height - 140);
-		this.context.lineTo((this.canvas.width / 2), 140);
+		this.context.moveTo((this.canvas.width / 2), this.canvas.height);
+		this.context.lineTo((this.canvas.width / 2), 0);
 		this.context.lineWidth = 3;
 		this.context.strokeStyle = '#14C9FF';
     this.context.stroke();
