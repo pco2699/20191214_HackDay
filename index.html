@@ -6,10 +6,10 @@
     <title>Theramin</title>
     <link rel="stylesheet" href="css/theramin.css">
 </head>
-<body>
-  <video class="videobox canvasbox" autoplay="autoplay" id="myvideo"></video>
+<body style="background-color: #240D51;">
+  <video class="videobox canvasbox" autoplay="autoplay" id="myvideo" style="display: none;"></video>
   <div class="main">
-    <div class="handtrack">
+    <div class="handtrack" style="display: none;">
       <div class="buttons">
         <button onclick="startVideo()">StartVideo</button>
         <button onclick="stopVideo()">StopVideo</button>
@@ -23,10 +23,15 @@
       <div>Y: <span class="y">0</span></div>
       <div>width: <span class="width">0</span></div>
       <div>height: <span class="height">0</span></div>
+      <div>convertW: <span class="convert-w">0</span></div>
+      <div>convertH: <span class="convert-h">0</span></div>
     </div>
     <div class="pong">
       <canvas id="pong"></canvas>
     </div>
+  </div>
+  <div style="text-align: center;">
+    <img src="image/danseponglogo.png" alt="" id="js-dansepong-logo">
   </div>
 
   <!-- script -->

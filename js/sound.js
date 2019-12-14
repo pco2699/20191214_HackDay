@@ -1,9 +1,9 @@
-document.getElementById('kick').addEventListener('click', () => {
-  if(!audioContext){
-    audioContext = new AudioContext();
-  }
-  playKick(audioContext);
-});
+// document.getElementById('kick').addEventListener('click', () => {
+//   if(!audioContext){
+//     audioContext = new AudioContext();
+//   }
+//   playKick(audioContext);
+// });
 
 const playKick = async (soundContext) => {
   let kick = await loadSound("sound/SU_01_Kick.wav", soundContext);

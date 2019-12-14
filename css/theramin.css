@@ -3,7 +3,7 @@ video {
 }
 
 div.main {
-  margin: 20px;
+  margin: 55px 90px 15px 90px;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
