@@ -71,6 +71,7 @@ var Game = {
 		this.beatCount = 0;
 		this.bpm = 120;
 		this.soundArr = [];
+		this.kick = selectSounds(kicks);
 
 		for (let key in Sounds) {
 		  this.setPlaybackRate(Sounds[key]);
@@ -183,7 +184,7 @@ var Game = {
     img.src = "image/hand.svg";
     img.onload = () => {
       this.context.drawImage(img, 20, 130, 450, 450);  //400x300に縮小表示
-    }
+    };
 
 		// // Change the canvas font size and color
 		// this.context.font = '50px Courier New';
@@ -233,7 +234,7 @@ var Game = {
 
   playSong: function() {
     if (this.checkBpm(4)) {
-      Sounds.kick.play();
+      Sounds.kick2.play();
     }
     if (this.checkBpm(8)) {
       this.playSoundGrid(soundGrid);
@@ -328,7 +329,7 @@ var Game = {
 					this.ball.x = (this.player.x + this.ball.width);
 					this.ball.moveX = DIRECTION.RIGHT;
 
-					this.soundArr.push(selectSounds(voices));
+					selectSounds(voices).play();
 				}
 			}
 
@@ -467,7 +468,7 @@ var Game = {
 		this.context.lineWidth = 3;
 		this.context.strokeStyle = '#14C9FF';
     this.context.stroke();
-    this.context.setLineDash([])
+    this.context.setLineDash([]);
 		this.context.closePath();
 
 		// Set the default canvas font and align it to the center
