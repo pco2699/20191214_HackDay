@@ -26,11 +26,14 @@ const modelParams = {
   scoreThreshold: 0.85,    // confidence threshold for predictions.
 };
 
-(async () => {
-  // Load the model.
-  model = await handTrack.load(modelParams);
-  startVideo();
-})();
+window.addEventListener('DOMContentLoaded', () => {
+  (async () => {
+    // Load the model.
+    model = await handTrack.load(modelParams);
+    startVideo();
+  })();
+});
+
 
 const startVideo = async () => {
   const status = await handTrack.startVideo(video);
