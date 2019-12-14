@@ -9,18 +9,23 @@
 <body>
   <video class="videobox canvasbox" autoplay="autoplay" id="myvideo"></video>
   <div class="main">
-    <div class="buttons">
-      <button onclick="startVideo()">StartVideo</button>
-      <button onclick="stopVideo()">StopVideo</button>
-      <button onclick="readySound()">StartSound</button>
-      <button onclick="stopSound()">StopSound</button>
+    <div class="handtrack">
+      <div class="buttons">
+        <button onclick="startVideo()">StartVideo</button>
+        <button onclick="stopVideo()">StopVideo</button>
+        <button onclick="readySound()">StartSound</button>
+        <button onclick="stopSound()">StopSound</button>
+      </div>
+      <canvas id="canvas" class="border canvasbox"></canvas>
+      <span id="text">Let's start the video.</span>
+      <div>X: <span class="x">0</span></div>
+      <div>Y: <span class="y">0</span></div>
+      <div>width: <span class="width">0</span></div>
+      <div>height: <span class="height">0</span></div>
     </div>
-    <canvas id="canvas" class="border canvasbox"></canvas>
-    <span id="text">Let's start the video.</span>
-    <div>X: <span class="x">0</span></div>
-    <div>Y: <span class="y">0</span></div>
-    <div>width: <span class="width">0</span></div>
-    <div>height: <span class="height">0</span></div>
+    <div class="pong">
+      <canvas id="pong"></canvas>
+    </div>
   </div>
 
   <!-- script -->
