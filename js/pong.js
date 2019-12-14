@@ -53,7 +53,7 @@ var Paddle = {
 
 var Game = {
 	initialize: function () {
-		this.canvas = document.querySelector('canvas');
+		this.canvas = document.getElementById('pong');
 		this.context = this.canvas.getContext('2d');
 
 		this.canvas.width = 1400;
@@ -75,6 +75,19 @@ var Game = {
 		Pong.menu();
 		Pong.listen();
 	},
+
+  setPlayerY: function (y) {
+    if (this.player) {
+      console.log("Player Y Updated");
+      this.player.y = y;
+    }
+  },
+
+  convertRange: (curPos, height) => {
+    let convertedHeight = curPos * height / (this.canvas.height * 0.5);
+    console.log("convertedHeight: " + convertedHeight);
+    return convertedHeight;
+  },
 
 	endGameMenu: function (text) {
 		// Change the canvas font size and color
