@@ -6,7 +6,25 @@
     <link rel="stylesheet" href="css/pong.css">
 </head>
 <body>
+    <div>
+        <div>
+            Your ID: <span id="js-local-id"></span>
+        </div>
+        <div>
+            <input id="js-remote-id" type="text">
+            <button id="js-connect-trigger">connect</button>
+        </div>
+        <div>
+            <input type="text" id="js-local-text">
+            <button id="js-send-trigger">send</button>
+        </div>
+        <div style="width:400px;height:300px;background-color:#eee;margin:20px auto">
+            <pre id="js-messages"></pre>
+        </div>
+    </div>
     <canvas></canvas>
+    <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
     <script src="js/pong.js"></script>
+    <script src="js/pong_skyway.js"></script>
 </body>
 </html>
