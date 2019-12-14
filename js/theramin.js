@@ -79,9 +79,13 @@ const runDetection = async () => {
     yNote.innerText = predictions[0].bbox[1];
     widthNote.innerText = predictions[0].bbox[2];
     heightNote.innerText = predictions[0].bbox[3];
+
     let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
+    let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
     startSound(midHeight);
-    Pong.setPlayerY(Pong.convertRange(midHeight, video.height));
+    Pong.setPlayerY(Pong.convertRangeY(midHeight, video.height));
+    Pong.setPlayerX(Pong.convertRangeX(midWidth, video.width));
+    Pong.setPlayerH(predictions[0].bbox[3]);
 
     // let midval = predictions[0].bbox[0] + (predictions[0].bbox[2] / 2);
     // let pos = document.body.clientWidth * (midval / video.width);

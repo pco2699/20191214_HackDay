@@ -34,8 +34,11 @@ var Paddle = {
 			x: side === 'left' ? 150 : this.canvas.width - 150,
 			y: (this.canvas.height / 2) - 35,
 			score: 0,
-			move: DIRECTION.IDLE,
-			speed: 10
+			moveX: DIRECTION.IDLE,
+			moveY: DIRECTION.IDLE,
+			speed: 10,
+			speedX: 10,
+			speedY: 10
 		};
 	}
 };
@@ -59,7 +62,7 @@ var Game = {
 		this.running = this.over = false;
 		this.turn = this.paddle;
 		this.timer = this.round = 0;
-		this.color = '#2c3e50';
+		this.color = '#021D3C';
 		this.beatCount = 0;
 		this.bpm = 120;
 
@@ -67,19 +70,63 @@ var Game = {
 		Pong.listen(); // リッスン
 	},
 
-
   setPlayerY: function (y) {
     if (this.player) {
+      // const baseHeight = 500;
+      const baseHeight = this.player.y;
       console.log("Player Y Updated");
-      this.player.y = y;
+      if (baseHeight < y - 10) {
+        this.player.moveY = DIRECTION.DOWN;
+        this.player.speedY = (y - baseHeight) / 20;
+      }
+      else if (530 > y + 10) {
+        this.player.moveY = DIRECTION.UP;
+        this.player.speedY = (baseHeight - y) / 20;
+      }
+      else {
+        this.player.moveY = DIRECTION.IDLE;
+      }
     }
   },
 
-  convertRange: (curPos, height) => {
-    let convertedHeight = curPos * height / (this.canvas.height * 0.5);
+  setPlayerX: function (x) {
+    if (this.player) {
+      // const baseWidth = 200;
+      const baseWidth = this.player.x;
+      console.log("Player X Updated");
+      if (baseWidth < x - 10) {
+        this.player.moveX = DIRECTION.RIGHT;
+        this.player.speedX = (x - baseWidth) / 7;
+      }
+      else if (baseWidth > x + 10) {
+        this.player.moveX = DIRECTION.LEFT;
+        this.player.speedX = (baseWidth - x) / 7;
+      }
+      else {
+        this.player.moveX = DIRECTION.IDLE;
+      }
+    }
+  },
+
+  setPlayerH: function (h) {
+    if (this.player) {
+      console.log("Player H Updated");
+      this.player.height = h * 1.5 - 100;
+    }
+  },
+
+  convertRangeX: (curPos, width) => {
+    let convertedWidth = curPos * width / (this.canvas.width);
+    console.log("convertedWidth: " + convertedWidth);
+    return convertedWidth;
+  },
+
+  convertRangeY: (curPos, height) => {
+    let convertedHeight = curPos * height / (this.canvas.height * 0.3);
     console.log("convertedHeight: " + convertedHeight);
     return convertedHeight;
   },
+
   // ゲーム終了時
 	endGameMenu: function (text) {
 		// Change the canvas font size and color
@@ -162,32 +209,25 @@ var Game = {
 	  this.playSong();
 		if (!this.over) {
 			// ボールのバウンド制御
-
-      // 左の壁
-			if (this.ball.x <= 0) {
-			  Pong._resetTurn.call(this, this.paddle, this.player);
-      }
-			// 右の壁
-			if (this.ball.x >= this.canvas.width - this.ball.width) {
-			  Pong._resetTurn.call(this, this.player, this.paddle);
-      }
-
-      // 上の壁
-			if (this.ball.y <= 0) {
-			  this.ball.moveY = DIRECTION.DOWN;
-			  snare.play();
-      }
-      // 下の壁
-      if (this.ball.y >= this.canvas.height - this.ball.height) {
-			  this.ball.moveY = DIRECTION.UP;
-      }
+			// if (this.ball.x <= 0) Pong._resetTurn.call(this, this.paddle, this.player);
+			// if (this.ball.x >= this.canvas.width - this.ball.width) Pong._resetTurn.call(this, this.player, this.paddle);
+			if (this.ball.x <= 0) this.ball.moveX = DIRECTION.RIGHT;
+			if (this.ball.x >= this.canvas.width - this.ball.width) this.ball.moveX = DIRECTION.LEFT;
+			if (this.ball.y <= 0) this.ball.moveY = DIRECTION.DOWN;
+			if (this.ball.y >= this.canvas.height - this.ball.height) this.ball.moveY = DIRECTION.UP;
 
 			// プレイヤーを動かす（キーボード入力に反応）
-			if (this.player.move === DIRECTION.UP) {
-        this.player.y -= this.player.speed;
+			if (this.player.moveY === DIRECTION.UP) {
+        this.player.y -= this.player.speedY;
       }
-			else if (this.player.move === DIRECTION.DOWN) {
-        this.player.y += this.player.speed;
+			else if (this.player.moveY === DIRECTION.DOWN) {
+        this.player.y += this.player.speedY;
+      }
+			if (this.player.moveX === DIRECTION.RIGHT) {
+        this.player.x += this.player.speedX;
+      }
+			else if (this.player.moveX === DIRECTION.LEFT) {
+        this.player.x -= this.player.speedX;
       }
 
       // ボールの再投下
@@ -200,7 +240,9 @@ var Game = {
 
       // プレイヤーが画面外へ行かないように制御
 			if (this.player.y <= 0) this.player.y = 0;
-			else if (this.player.y >= (this.canvas.height - this.player.height)) this.player.y = (this.canvas.height - this.player.height);
+      else if (this.player.y >= (this.canvas.height - this.player.height)) this.player.y = (this.canvas.height - this.player.height);
+      if (this.player.x <= 0) this.player.x = 0;
+      else if (this.player.x >= (this.canvas.width * 0.5 - this.player.width)) this.player.x = (this.canvas.width * 0.5 - this.player.width);
 
 			// Move ball in intended direction based on moveY and moveX values
 			if (this.ball.moveY === DIRECTION.UP) this.ball.y -= (this.ball.speed / 1.5);
@@ -291,8 +333,14 @@ var Game = {
 			this.canvas.height
 		);
 
+    // this.context.strokeStyle = '#14C9FF';
+		// this.context.lineWidth = 10;
+		// this.context.beginPath();
+    // this.context.strokeRect(80, 80, this.canvas.width-160, this.canvas.height-160);
+		// this.context.closePath();
+
 		// Set the fill style to white (For the paddles and the ball)
-		this.context.fillStyle = '#ffffff';
+		this.context.fillStyle = '#F526ED';
 
 		// Draw the Player
 		this.context.fillRect(
@@ -301,6 +349,9 @@ var Game = {
 			this.player.width,
 			this.player.height
 		);
+
+		// Set the fill style to white (For the paddles and the ball)
+		this.context.fillStyle = '#FFFFFF';
 
 		// Draw the Paddle
 		this.context.fillRect(
@@ -312,12 +363,37 @@ var Game = {
 
 		// Draw the Ball
 		if (Pong._turnDelayIsOver.call(this)) {
+      // // 円の中心座標: (100,100)
+      // // 半径: 50
+      // // 開始角度: 0度 (0 * Math.PI / 180)
+      // // 終了角度: 360度 (360 * Math.PI / 180)
+      // // 方向: true=反時計回りの円、false=時計回りの円
+      // this.context.arc(
+      //   this.ball.x,
+      //   this.ball.y,
+      //   this.ball.width * 0.5,
+      //   0 * Math.PI / 180,
+      //   360 * Math.PI / 180,
+      //   false
+      // );
+      // // this.context.fillStyle = "#FFFFFF";
+      // // this.context.fill();
+      // this.context.stroke();
+      if (this.ball.moveX === DIRECTION.RIGHT) {
+        this.context.fillStyle = '#F526ED';
+      }
+      else if (this.ball.moveX === DIRECTION.LEFT) {
+        this.context.fillStyle = '#FFFFFF';
+      }
+
 			this.context.fillRect(
-				this.ball.x,
-				this.ball.y,
-				this.ball.width,
-				this.ball.height
-			);
+        this.ball.x,
+        this.ball.y,
+        this.ball.width,
+        this.ball.height
+      );
+
+      this.context.fillStyle = '#FFFFFF';
 		}
 
 		// Draw the net (Line in the middle)
@@ -325,47 +401,49 @@ var Game = {
 		this.context.setLineDash([7, 15]);
 		this.context.moveTo((this.canvas.width / 2), this.canvas.height - 140);
 		this.context.lineTo((this.canvas.width / 2), 140);
-		this.context.lineWidth = 10;
-		this.context.strokeStyle = '#ffffff';
-		this.context.stroke();
+		this.context.lineWidth = 3;
+		this.context.strokeStyle = '#14C9FF';
+    this.context.stroke();
+    this.context.setLineDash([])
+		this.context.closePath();
 
 		// Set the default canvas font and align it to the center
 		this.context.font = '100px Courier New';
 		this.context.textAlign = 'center';
 
 		// Draw the players score (left)
-		this.context.fillText(
-			this.player.score.toString(),
-			(this.canvas.width / 2) - 300,
-			200
-		);
+		// this.context.fillText(
+		// 	this.player.score.toString(),
+		// 	(this.canvas.width / 2) - 300,
+		// 	200
+		// );
 
 		// Draw the paddles score (right)
-		this.context.fillText(
-			this.paddle.score.toString(),
-			(this.canvas.width / 2) + 300,
-			200
-		);
+		// this.context.fillText(
+		// 	this.paddle.score.toString(),
+		// 	(this.canvas.width / 2) + 300,
+		// 	200
+		// );
 
 		// Change the font size for the center score text
 		this.context.font = '30px Courier New';
 
 		// Draw the winning score (center)
-		this.context.fillText(
-			'Round ' + (Pong.round + 1),
-			(this.canvas.width / 2),
-			35
-		);
+		// this.context.fillText(
+		// 	'Round ' + (Pong.round + 1),
+		// 	(this.canvas.width / 2),
+		// 	35
+		// );
 
 		// Change the font size for the center score value
 		this.context.font = '40px Courier';
 
 		// Draw the current round number
-		this.context.fillText(
-			rounds[Pong.round] ? rounds[Pong.round] : rounds[Pong.round - 1],
-			(this.canvas.width / 2),
-			100
-		);
+		// this.context.fillText(
+		// 	rounds[Pong.round] ? rounds[Pong.round] : rounds[Pong.round - 1],
+		// 	(this.canvas.width / 2),
+		// 	100
+		// );
 	},
 
   // アップデートのループ
@@ -388,18 +466,19 @@ var Game = {
 
 			// 上矢印 or w キーでプレイヤーを上移動
 			if (key.keyCode === 38 || key.keyCode === 87) {
-        Pong.player.move = DIRECTION.UP;
+        Pong.player.moveY = DIRECTION.UP;
       }
 
 			// 下矢印 or s キーでプレイヤーを下移動
 			if (key.keyCode === 40 || key.keyCode === 83) {
-        Pong.player.move = DIRECTION.DOWN;
+        Pong.player.moveY = DIRECTION.DOWN;
       }
 		});
 
 		// キーを押してなかったらプレイヤーの動きを停止
 		document.addEventListener('keyup', function (key) {
-      Pong.player.move = DIRECTION.IDLE;
+      Pong.player.moveX = DIRECTION.IDLE;
+      Pong.player.moveY = DIRECTION.IDLE;
     });
 	},
 
