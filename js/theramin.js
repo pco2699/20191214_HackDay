@@ -71,8 +71,6 @@ const runDetection = async () => {
   // console.log("Predictions: ", predictions);
   model.renderPredictions(predictions, canvas, context, video);
   if (predictions[0]) {
-    let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[2] / 2);
-    let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[3] / 2);
     xNote.innerText = midWidth;
     yNote.innerText = midHeight;
     widthNote.innerText = predictions[0].bbox[2];
