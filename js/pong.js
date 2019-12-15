@@ -368,7 +368,7 @@ var Game = {
 					this.ball.x = (this.player.x + this.ball.width);
 					this.ball.moveX = DIRECTION.RIGHT;
           this.playLoopGrid(loopGrid);
-					// selectSounds(voices).play();
+					selectSounds(voices).play();
 				}
 			}
 
