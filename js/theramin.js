@@ -101,27 +101,27 @@ const runDetection = async () => {
   // console.log("Predictions: ", predictions);
   model.renderPredictions(predictions, canvas, context, video);
   if (predictions[0]) {
-    xNote.innerText = predictions[0].bbox[0];
-    yNote.innerText = predictions[0].bbox[1];
+    let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[2] / 2);
+    let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[3] / 2);
+    xNote.innerText = midWidth;
+    yNote.innerText = midHeight;
     widthNote.innerText = predictions[0].bbox[2];
     heightNote.innerText = predictions[0].bbox[3];
 
-    let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
-    let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
-    console.log(midWidth);
     await startSound(midWidth, midHeight);
 
     // ゲーム開始
-    console.log(midHeight);
     if (Pong.running === false) {
-      if (midHeight <= 100) {
+      if (midHeight <= 140) {
         Pong.running = true;
         window.requestAnimationFrame(Pong.loop);
       }
     }
 
-    Pong.setPlayerY(Pong.convertRangeY(midHeight, video.height));
-    Pong.setPlayerX(Pong.convertRangeX(midWidth, video.width));
+    // Pong.setPlayerX(Pong.convertRangeX(midWidth, video.width));
+    // Pong.setPlayerY(Pong.convertRangeY(midHeight, video.height));
+    Pong.setPlayerX(midWidth - video.width * 0.5);
+    Pong.setPlayerY(midHeight - video.height * 0.5);
     Pong.setPlayerW(predictions[0].bbox[2]);
     Pong.setPlayerH(predictions[0].bbox[3]);
 

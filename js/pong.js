@@ -20,7 +20,7 @@ var Ball = {
 			y: (this.canvas.height / 2) - 9,
 			moveX: DIRECTION.IDLE,
 			moveY: DIRECTION.IDLE,
-			speed: incrementedSpeed || 9
+			speed: incrementedSpeed || 18
 		};
 	}
 };
@@ -83,16 +83,20 @@ var Game = {
 
   setPlayerY: function (y) {
     if (this.player) {
-      // const baseHeight = 500;
-      const playerY = this.player.y;
+      const curY = (this.player.y - this.canvas.height * 0.5) * (100 / (this.canvas.height * 0.5));
+      let handY = y;
+      if (handY > 100) handY = 100;
+      if (handY < -100) handY = -100;
+      const diffY = handY - curY
       console.log("Player Y Updated");
-      if (playerY + 210 < y) {
+      let speed = diffY / 4
+      if (diffY > 5) {
         this.player.moveY = DIRECTION.DOWN;
-        this.player.speedY = (y - (playerY+210)) / 20;
+        this.player.speedY = speed;
       }
-      else if (playerY + 190 > y) {
+      else if (diffY < -5) {
         this.player.moveY = DIRECTION.UP;
-        this.player.speedY = ((playerY+190) - y) / 20;
+        this.player.speedY = -speed;
       }
       else {
         this.player.moveY = DIRECTION.IDLE;
@@ -102,16 +106,20 @@ var Game = {
 
   setPlayerX: function (x) {
     if (this.player) {
-      // const baseWidth = 200;
-      const baseWidth = this.player.x;
+      const curX = (this.player.x - this.canvas.width * 0.25) * (100 / (this.canvas.width * 0.25));
+      let handX = x * 0.7;
+      if (handX > 100) handX = 100;
+      if (handX < -100) handX = -100;
+      const diffX = handX - curX
       console.log("Player X Updated");
-      if (baseWidth < x - 10) {
-        this.player.moveX = DIRECTION.RIGHT;
-        this.player.speedX = (x - baseWidth) / 7;
-      }
-      else if (baseWidth > x + 10) {
+      let speed = diffX / 4
+      if (diffX < -5) {
         this.player.moveX = DIRECTION.LEFT;
-        this.player.speedX = (baseWidth - x) / 7;
+        this.player.speedX = -speed;
+      }
+      else if (diffX > 5) {
+        this.player.moveX = DIRECTION.RIGHT;
+        this.player.speedX = speed;
       }
       else {
         this.player.moveX = DIRECTION.IDLE;
@@ -136,7 +144,7 @@ var Game = {
   },
 
   convertRangeX: (curPos, width) => {
-    let convertedWidth = curPos * width / (this.canvas.width);
+    let convertedWidth = curPos * width / (this.canvas.width * 0.8);
     console.log("convertedWidth: " + convertedWidth);
     return convertedWidth;
   },
@@ -318,11 +326,11 @@ var Game = {
 
 			// Handle paddle (AI) UP and DOWN movement
 			if (this.paddle.y > this.ball.y - (this.paddle.height / 2)) {
-				if (this.ball.moveX === DIRECTION.RIGHT) this.paddle.y -= this.paddle.speed / 1.5;
+				if (this.ball.moveX === DIRECTION.RIGHT) this.paddle.y -= this.paddle.speed * 1.5;
 				else this.paddle.y -= this.paddle.speed / 4;
 			}
 			if (this.paddle.y < this.ball.y - (this.paddle.height / 2)) {
-				if (this.ball.moveX === DIRECTION.RIGHT) this.paddle.y += this.paddle.speed / 1.5;
+				if (this.ball.moveX === DIRECTION.RIGHT) this.paddle.y += this.paddle.speed * 1.5;
 				else this.paddle.y += this.paddle.speed / 4;
 			}
 
