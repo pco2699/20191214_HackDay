@@ -35,6 +35,7 @@ messageNote.addEventListener('click', () => {
 
 window.addEventListener('DOMContentLoaded', () => {
   (async () => {
+    audioContext = new AudioContext();
     // Load the model.
     model = await handTrack.load(modelParams);
     messageNote.innerText = 'Loading Complete!';
@@ -58,37 +59,6 @@ const startVideo = async () => {
   }
 };
 
-const readySound = async () => {
-  audioContext = new AudioContext();
-};
-
-const startSound = async (x, y) => {
-  if (!soundStart && audioContext) {
-    gainNode = audioContext.createGain();
-    oscillator = audioContext.createOscillator();
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.1);
-    gainNode.gain.setTargetAtTime(calculateGain(x), audioContext.currentTime, 0.1);
-    oscillator.connect(audioContext.destination);
-    oscillator.start(audioContext.currentTime);
-    soundStart = true;
-  } else if (audioContext) {
-    gainNode.gain.setTargetAtTime(calculateGain(x), audioContext.currentTime, 0.1);
-    oscillator.frequency.setTargetAtTime(calculateFrequency(y), audioContext.currentTime, 0.1);
-  } else {
-    await readySound();
-  }
-};
-
-const stopSound = () => {
-  if (audioContext && oscillator) {
-    oscillator.stop(audioContext.currentTime);
-    oscillator.disconnect();
-    soundStart = false;
-  }
-};
-
 const stopVideo = () => {
   updateNote.innerText = "Stopping video";
   handTrack.stopVideo(video);
@@ -108,17 +78,16 @@ const runDetection = async () => {
 
     let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
     let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
-    console.log(midWidth);
-    await startSound(midWidth, midHeight);
+    // await startSound(midWidth, midHeight);
 
     // ゲーム開始
-    console.log(midHeight);
     if (Pong.running === false) {
       if (midHeight <= 100) {
         Pong.running = true;
         window.requestAnimationFrame(Pong.loop);
       }
     }
+    console.log(Pong);
 
     Pong.setPlayerY(Pong.convertRangeY(midHeight, video.height));
     Pong.setPlayerX(Pong.convertRangeX(midWidth, video.width));
@@ -130,8 +99,6 @@ const runDetection = async () => {
     // console.log("Pos: " + pos);
     // posNote.innerText = pos;
     // updatePaddleControl(gamex);
-  } else if (predictions.length === 0) {
-    stopSound();
   }
   if (isVideo) {
     setTimeout(() => {

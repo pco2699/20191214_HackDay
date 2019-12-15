@@ -1,11 +1,29 @@
 
+// class SoundWrapper {
+//   constructor(src, duration, offset, bpm=-1) {
+//     src = 'sound/' + src;
+//     this.sound = loadSound(src, audioContext);
+//     this.bpm = bpm;
+//     this.duration = duration;
+//     this.offset = offset;
+//   }
+//   play() {
+//     playSound(this.sound, audioContext);
+//   }
+//   setRate(rate) {
+//     this.sound.rate(rate);
+//   }
+// }
+
 class SoundWrapper {
-  constructor(src, bpm=-1) {
+  constructor(src, duration, offset, bpm=-1) {
     src = 'sound/' + src;
     this.sound = new Howl({
       src: [src]
     });
     this.bpm = bpm;
+    this.duration = duration;
+    this.offset = offset;
   }
   play() {
     this.sound.play();
@@ -14,6 +32,25 @@ class SoundWrapper {
     this.sound.rate(rate);
   }
 }
+
+
+var unlocked = false;
+var isPlaying = false;      // Are we currently playing?
+var startTime;              // The start time of the entire sequence.
+var current16thNote;        // What note is currently last scheduled?
+var tempo = 120.0;          // tempo (in beats per minute)
+var lookahead = 25.0;       // How frequently to call scheduling function
+                            //(in milliseconds)
+var scheduleAheadTime = 0.1;    // How far ahead to schedule audio (sec)
+// This is calculated from lookahead, and overlaps
+// with next interval (in case the timer is late)
+var nextNoteTime = 0.0;     // when the next note is due.
+var noteResolution = 0;     // 0 == 16th, 1 == 8th, 2 == quarter note
+var noteLength = 0.05;      // length of "beep" (in seconds)
+var last16thNoteDrawn = -1; // the last "box" we drew on the screen
+var notesInQueue = [];      // the notes that have been put into the web audio,
+                            // and may or may not have played yet. {note, time}
+var timerWorker = null;     // The Web Worker used to fire timer messages
 
 // Audio (Game sounds) in base64 format.
 beep1 = new Audio(
@@ -27,65 +64,65 @@ beep3 = new Audio(
 );
 
 const Sounds = {
-  banjyo1: new SoundWrapper('banjyo1.wav'),
-  bass1: new SoundWrapper('bass1.wav'),
-  bass2: new SoundWrapper('bass2.wav'),
-  bass: new SoundWrapper('bass.wav'),
-  beat124: new SoundWrapper('beat124.wav', 124),
-  beatk: new SoundWrapper('beatk.wav'),
-  cantyou: new SoundWrapper('cantyou.wav'),
-  cello1: new SoundWrapper('cello1.wav'),
-  clap: new SoundWrapper('clap.wav'),
-  cowbell: new SoundWrapper('cowbell.wav'),
-  cymbals: new SoundWrapper('cymbals.wav'),
-  fill122: new SoundWrapper('fill122.wav', 122),
-  fill150_2: new SoundWrapper('fill150_2.wav', 150),
-  fill150_3: new SoundWrapper('fill150_3.wav', 150),
-  fill150: new SoundWrapper('fill150.wav', 150),
-  fill160_2: new SoundWrapper('fill160_2.wav', 160),
-  fill160_3: new SoundWrapper('fill160_3.wav', 160),
-  fill160: new SoundWrapper('fill160.wav', 160),
-  glitch: new SoundWrapper('glitch.wav'),
-  gtr_d: new SoundWrapper('gtr_d.wav'),
-  gtr_e: new SoundWrapper('gtr_e.wav'),
-  gtr_f: new SoundWrapper('gtr_f.wav'),
-  guitar1: new SoundWrapper('guitar1.wav'),
-  guitar2: new SoundWrapper('guitar2.wav'),
-  guitar3: new SoundWrapper('guitar3.wav'),
-  hey: new SoundWrapper('hey.wav'),
-  hihat_1: new SoundWrapper('hihat_1.wav'),
-  hihat_loop120: new SoundWrapper('hihat_loop120.wav', 120),
-  kick2: new SoundWrapper('kick2.wav'),
-  kick3: new SoundWrapper('kick3.wav'),
-  kick4: new SoundWrapper('kick4.wav'),
-  kick5: new SoundWrapper('kick5.wav'),
-  kick: new SoundWrapper('kick.wav'),
-  loop8: new SoundWrapper('loop8.wav'),
-  loopA120: new SoundWrapper('loopA120.wav'),
-  metallic: new SoundWrapper('metallic.wav'),
-  offbeat: new SoundWrapper('offbeat.wav'),
-  ok: new SoundWrapper('ok.wav'),
-  pad_loop_108: new SoundWrapper('pad_loop_108.wav', 108),
-  Phrase_28: new SoundWrapper('Phrase_28.wav'),
-  promises: new SoundWrapper('promises.wav'),
-  ride: new SoundWrapper('ride.wav'),
-  saxophone_124: new SoundWrapper('saxophone_124.wav', 124),
-  shot1: new SoundWrapper('shot1.wav'),
-  shot2: new SoundWrapper('shot2.wav'),
-  shot3: new SoundWrapper('shot3.wav'),
-  snare: new SoundWrapper('snare.wav'),
-  steel_drum: new SoundWrapper('steel_drum.wav'),
-  strings1: new SoundWrapper('strings1.wav'),
-  strings2: new SoundWrapper('strings2.wav'),
-  synthloop120: new SoundWrapper('synthloop120.wav', 120),
-  talkloop110: new SoundWrapper('talkloop110.wav', 110),
-  thumb_p1: new SoundWrapper('thumb_p1.wav'),
-  tom115: new SoundWrapper('tom115.wav', 115),
-  tom: new SoundWrapper('tom.wav'),
-  trapit: new SoundWrapper('trapit.wav'),
-  violin: new SoundWrapper('violin.wav'),
-  yeah2: new SoundWrapper('yeah2.wav'),
-  yeah: new SoundWrapper('yeah.wav'),
+  banjyo1: new SoundWrapper('banjyo1.wav', 1, 0),
+  bass1: new SoundWrapper('bass1.wav', 1, 0),
+  bass2: new SoundWrapper('bass2.wav', 1, 0),
+  bass: new SoundWrapper('bass.wav', 1, 0),
+  beat124: new SoundWrapper('beat124.wav', 8,0, 124),
+  beatk: new SoundWrapper('beatk.wav', 1, 0),
+  cantyou: new SoundWrapper('cantyou.wav', 1, 0),
+  cello1: new SoundWrapper('cello1.wav', 1, 0),
+  clap: new SoundWrapper('clap.wav', 1, 0),
+  cowbell: new SoundWrapper('cowbell.wav', 1, 0),
+  cymbals: new SoundWrapper('cymbals.wav', 1, 0),
+  fill122: new SoundWrapper('fill122.wav', 8, 7, 122),
+  fill150_2: new SoundWrapper('fill150_2.wav', 8, 7,150),
+  fill150_3: new SoundWrapper('fill150_3.wav',8, 7, 150),
+  fill150: new SoundWrapper('fill150.wav',8, 7, 150),
+  fill160_2: new SoundWrapper('fill160_2.wav',8, 7, 160),
+  fill160_3: new SoundWrapper('fill160_3.wav',8, 7, 160),
+  fill160: new SoundWrapper('fill160.wav',8, 7, 160),
+  glitch: new SoundWrapper('glitch.wav', 1, 0),
+  gtr_d: new SoundWrapper('gtr_d.wav', 1, 0),
+  gtr_e: new SoundWrapper('gtr_e.wav', 1, 0),
+  gtr_f: new SoundWrapper('gtr_f.wav', 1, 0),
+  guitar1: new SoundWrapper('guitar1.wav', 1, 0),
+  guitar2: new SoundWrapper('guitar2.wav', 1, 0),
+  guitar3: new SoundWrapper('guitar3.wav', 1, 0),
+  hey: new SoundWrapper('hey.wav', 1, 0),
+  hihat_1: new SoundWrapper('hihat_1.wav', 1, 0),
+  hihat_loop120: new SoundWrapper('hihat_loop120.wav', 8, 4,120),
+  kick2: new SoundWrapper('kick2.wav',1, 0),
+  kick3: new SoundWrapper('kick3.wav',1 ,0),
+  kick4: new SoundWrapper('kick4.wav', 1, 0),
+  kick5: new SoundWrapper('kick5.wav', 1, 0),
+  kick: new SoundWrapper('kick.wav', 1, 0),
+  loop8: new SoundWrapper('loop8.wav',4, 1),
+  loopA120: new SoundWrapper('loopA120.wav', 4, 1),
+  metallic: new SoundWrapper('metallic.wav', 1, 0),
+  offbeat: new SoundWrapper('offbeat.wav', 1, 0),
+  ok: new SoundWrapper('ok.wav', 1, 0),
+  pad_loop_108: new SoundWrapper('pad_loop_108.wav', 8, 0,108),
+  Phrase_28: new SoundWrapper('Phrase_28.wav',8),
+  promises: new SoundWrapper('promises.wav',1, 0),
+  ride: new SoundWrapper('ride.wav', 1, 0),
+  saxophone_124: new SoundWrapper('saxophone_124.wav', 8, 0,124),
+  shot1: new SoundWrapper('shot1.wav',1, 0),
+  shot2: new SoundWrapper('shot2.wav',1, 0),
+  shot3: new SoundWrapper('shot3.wav',1, 0),
+  snare: new SoundWrapper('snare.wav', 1, 0),
+  steel_drum: new SoundWrapper('steel_drum.wav', 1, 0),
+  strings1: new SoundWrapper('strings1.wav',1, 0),
+  strings2: new SoundWrapper('strings2.wav', 1, 0),
+  synthloop120: new SoundWrapper('synthloop120.wav', 8, 0, 120),
+  talkloop110: new SoundWrapper('talkloop110.wav', 4, 0, 110),
+  thumb_p1: new SoundWrapper('thumb_p1.wav',1, 0),
+  tom115: new SoundWrapper('tom115.wav', 4, 0,115),
+  tom: new SoundWrapper('tom.wav', 1, 0),
+  trapit: new SoundWrapper('trapit.wav', 1, 0),
+  violin: new SoundWrapper('violin.wav', 1, 0),
+  yeah2: new SoundWrapper('yeah2.wav', 1, 0),
+  yeah: new SoundWrapper('yeah.wav', 1, 0),
 };
 
 const randomProperty = (obj) => {
@@ -131,7 +168,9 @@ oneshots = [
   Sounds.shot2,
   Sounds.shot3,
   Sounds.metallic,
-  Sounds.banjyo1
+  Sounds.banjyo1,
+  Sounds.strings1,
+  Sounds.strings2
 ];
 
 loops = [
@@ -139,7 +178,8 @@ loops = [
   Sounds.loopA120,
   Sounds.pad_loop_108,
   Sounds.saxophone_124,
-  Sounds.talkloop110
+  Sounds.talkloop110,
+  Sounds.synthloop120
 ];
 
 drums_all = [
@@ -173,6 +213,11 @@ kicks = [
   Sounds.kick5,
 ];
 
+const loopGrid = [
+  [Sounds.loop8, Sounds.loopA120, Sounds.pad_loop_108],
+  [Sounds.saxophone_124, Sounds.talkloop110, Sounds.synthloop120]
+];
+
 
 const createSoundGrid = () => {
   let soundGrid = [];
@@ -193,3 +238,97 @@ const selectSounds = (sounds) => {
 };
 
 soundGrid = createSoundGrid();
+
+const loadSound = async (url, soundContext) => {
+  let sound = {};
+  sound.url = url;
+
+  let response = await makeRequest(url);
+  sound.buffer = await soundContext.decodeAudioData(response);
+
+  return sound;
+};
+
+const playSound = (sound, soundContext) => {
+  let buffer = sound.buffer;
+  if(buffer){
+    let source = soundContext.createBufferSource();
+    source.buffer = buffer;
+
+    let volume = soundContext.createGain();
+
+    volume.connect(soundContext.destination);
+    source.connect(volume);
+    source.start(0);
+  }
+};
+
+const makeRequest = async (url) => {
+  return new Promise(function (resolve, reject) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = function () {
+      if (this.status >= 200 && this.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText
+        });
+      }
+    };
+    xhr.onerror = function () {
+      reject({
+        status: this.status,
+        statusText: xhr.statusText
+      });
+    };
+    xhr.send();
+  });
+};
+
+function nextNote() {
+  // Advance current note and time by a 16th note...
+  let secondsPerBeat = 60.0 / tempo;    // Notice this picks up the CURRENT
+                                        // tempo value to calculate beat length.
+  nextNoteTime += 0.25 * secondsPerBeat;    // Add beat length to last beat time
+
+  current16thNote++;    // Advance the beat number, wrap to zero
+  if (current16thNote == 16) {
+    current16thNote = 0;
+  }
+}
+
+
+function scheduleNote( beatNumber, time ) {
+  // push the note on the queue, even if we're not playing.
+  notesInQueue.push( { note: beatNumber, time: time } );
+
+  if ( (noteResolution==1) && (beatNumber%2))
+    return; // we're not playing non-8th 16th notes
+  if ( (noteResolution==2) && (beatNumber%4))
+    return; // we're not playing non-quarter 8th notes
+
+  // create an oscillator
+  var osc = audioContext.createOscillator();
+  osc.connect( audioContext.destination );
+  if (beatNumber % 16 === 0)    // beat 0 == high pitch
+    osc.frequency.value = 880.0;
+  else if (beatNumber % 4 === 0 )    // quarter notes = medium pitch
+    osc.frequency.value = 440.0;
+  else                        // other 16th notes = low pitch
+    osc.frequency.value = 220.0;
+
+  osc.start( time );
+  osc.stop( time + noteLength );
+}
+
+function scheduler() {
+  // while there are notes that will need to play before the next interval,
+  // schedule them and advance the pointer.
+  while (nextNoteTime < audioContext.currentTime + scheduleAheadTime ) {
+    scheduleNote( current16thNote, nextNoteTime );
+    nextNote();
+  }
+}

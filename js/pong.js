@@ -69,9 +69,10 @@ var Game = {
 		this.timer = this.round = 0;
 		this.color = '#19083B';
 		this.beatCount = 0;
-		this.bpm = 120;
-		this.soundArr = [];
+		this.bpm = 180;
+		this.soundQueue = [];
 		this.kick = selectSounds(kicks);
+		this.fill = selectSounds(fills);
 
 		for (let key in Sounds) {
 		  this.setPlaybackRate(Sounds[key]);
@@ -187,10 +188,10 @@ var Game = {
     let scale = 450;
     const setImage = () => {
       this.context.drawImage(img, 20, 130, scale, scale);  //400x300に縮小表示
-    }
+    };
     img.onload = () => {
       setImage();
-    }
+    };
 
 		// // Change the canvas font size and color
 		// this.context.font = '50px Courier New';
@@ -214,10 +215,23 @@ var Game = {
 		// );
 	},
 
+  playLoopGrid: function(loopGrid) {
+    let length_x = loopGrid.length;
+    let length_y = loopGrid[0].length;
+    let x = Math.floor(this.player.x / this.canvas.width / 2 * length_x);
+    let y = Math.floor(this.player.y / this.canvas.height * length_y);
+    console.log("x: " + x + "y: " + y);
+    if (x < 0 || y < 0){
+      return
+    }
+    let selectedGrid = loopGrid[x][y];
+
+    this.soundQueue.push(selectedGrid);
+  },
+
   playSoundGrid: function(soundGrid) {
 	  let rand = Math.floor( Math.random() * 2 );
 	  if (rand === 1){
-	    console.log("ballx: " + this.ball.x + "bally" + this.ball.y);
 	    let length = soundGrid.length;
 	    let x = Math.floor(this.ball.x / this.canvas.width * length);
 	    let y = Math.floor(this.ball.y / this.canvas.height * length);
@@ -227,7 +241,6 @@ var Game = {
       }
       let selectedGrid = soundGrid[x][y];
 
-	    console.log(selectedGrid);
 	    selectedGrid.play();
     }
   },
@@ -240,24 +253,35 @@ var Game = {
   },
 
   playSong: function() {
-    if (this.checkBpm(4)) {
-      Sounds.kick2.play();
+	  // playkick
+    if (this.checkBpm(1)) {
+      this.kick.play();
     }
-    if (this.checkBpm(8)) {
+    if (this.checkBpm(this.fill.duration, this.fill.offset)){
+      let rand = Math.floor( Math.random() * 3 );
+      if (rand === 1) {
+        this.fill.play();
+      }
+    }
+    if (this.checkBpm(2)) {
       this.playSoundGrid(soundGrid);
-      this.soundArr.forEach((s)=>{
-        s.play();
-      });
-      this.soundArr = [];
+    }
+    if (this.soundQueue.length > 0 && this.checkBpm(this.soundQueue[0].duration, this.soundQueue[0].offset)) {
+      this.soundQueue[0].play();
+      this.soundQueue.shift();
     }
 
     this.beatCount++;
   },
 
-  // beat: 一小節で何泊鳴らすか
-  // offset: 何泊ずらすか
-  checkBpm: function(beat, offset=0) {
-	  return (this.beatCount + offset * Math.floor(3600 / this.bpm))  % (3600 / (this.bpm / 4 * beat)) === 0
+  // beat: 何拍鳴らすか
+  // offset: 何拍ずらすか(1拍単位)
+  checkBpm: function(duration, offset=0) {
+	  // 1拍あたりのframe数
+    let fpb = Math.floor(3600 / this.bpm);
+    // 指定されたdurationあたりのframe数
+	  let curBeat = Math.floor(fpb * duration);
+	  return (this.beatCount + offset * fpb)  % curBeat  === 0
   },
 
 	// オブジェクトのアップデート (プレイヤー, パドル, ボールの移動, スコアの加点など)
@@ -275,11 +299,11 @@ var Game = {
       }
 			if (this.ball.y <= 0) {
         this.ball.moveY = DIRECTION.DOWN;
-        this.soundArr.push(Sounds.tom);
+        this.soundQueue.push(selectSounds(drums_base));
       }
 			if (this.ball.y >= this.canvas.height - this.ball.height) {
         this.ball.moveY = DIRECTION.UP;
-        this.soundArr.push(Sounds.ride);
+        this.soundQueue.push(selectSounds(drums_base));
       }
 
 			// プレイヤーを動かす（キーボード入力に反応）
@@ -335,8 +359,8 @@ var Game = {
 				if (this.ball.y <= this.player.y + this.player.height && this.ball.y + this.ball.height >= this.player.y) {
 					this.ball.x = (this.player.x + this.ball.width);
 					this.ball.moveX = DIRECTION.RIGHT;
-
-					selectSounds(voices).play();
+          this.playLoopGrid(loopGrid);
+					// selectSounds(voices).play();
 				}
 			}
 
@@ -347,7 +371,7 @@ var Game = {
 					this.ball.moveX = DIRECTION.LEFT;
 
 
-          this.soundArr.push(selectSounds(drums_all));
+          this.soundQueue.push(selectSounds(drums_all));
 				}
 			}
 		}
