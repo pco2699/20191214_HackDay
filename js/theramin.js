@@ -71,13 +71,13 @@ const runDetection = async () => {
   // console.log("Predictions: ", predictions);
   model.renderPredictions(predictions, canvas, context, video);
   if (predictions[0]) {
+    let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
+    let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
     xNote.innerText = midWidth;
     yNote.innerText = midHeight;
     widthNote.innerText = predictions[0].bbox[2];
     heightNote.innerText = predictions[0].bbox[3];
 
-    let midHeight =  predictions[0].bbox[1] + (predictions[0].bbox[2] / 3);
-    let midWidth =  predictions[0].bbox[0] + (predictions[0].bbox[1] / 3);
     // await startSound(midWidth, midHeight);
 
     // ゲーム開始
